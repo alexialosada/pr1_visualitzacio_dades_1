@@ -1,0 +1,84 @@
+---
+title: "PR1_Conjunt de dades"
+author: "Alèxia Losada i Fors"
+output: html_notebook
+---
+
+
+```{r}
+if (!require("dplyr")) install.packages("dplyr")
+library(dplyr)
+if (!require("tidyverse")) install.packages("tidyverse")
+library(tidyverse)
+```
+
+```{r}
+cost_of_living_v1 <- read.csv("cost-of-living.csv")[, -1]
+cost_of_living_v2 <- read.csv("cost-of-living_v2.csv")
+```
+
+
+```{r}
+df_cost <- rbind(cost_of_living_v1, cost_of_living_v2)
+```
+
+
+```{r}
+df_cost_renamed <- df_cost %>%
+  rename(
+    InexpensiveMeal = x1, MealForTwo = x2, McMeal = x3, DomesticBeerRestaurant = x4, ImportedBeerRestaurant = x5, Cappuccino = x6, CokePepsi = x7,
+    WaterRestaurant = x8, Milk = x9, WhiteBread = x10, Rice = x11, Eggs = x12, LocalCheese = x13, ChickenFillets = x14, BeefRound = x15, Apples = x16,
+    Banana = x17, Oranges = x18, Tomato = x19, Potato = x20, Onion = x21, Lettuce = x22, WaterMarket = x23, BottleOfWine = x24, DomesticBeerMarket = x25,
+    ImportedBeerMarket = x26, Cigarettes = x27, OneWayTicket = x28, MonthlyPass = x29, TaxiStart = x30, Taxi1km = x31, Taxi1hrWaiting = x32, Gasoline = x33,
+    VolkswagenGolf = x34, ToyotaCorolla = x35, BasicUtilities = x36, MobileTariff = x37, Internet = x38, FitnessClub = x39, TennisCourtRent = x40, Cinema = x41,
+    Preschool = x42, InternationalSchool = x43, Jeans = x44, SummerDress = x45, NikeRunningShoes = x46, MenLeatherShoes = x47, Apartment1bedCityCenter = x48,
+    Apartment1bedOutsideCenter = x49, Apartment3bedsCityCenter = x50, Apartment3bedsOutsideCenter = x51, PricePerSquareMeterCity = x52,
+    PricePerSquareMeterOutside = x53, AverageMonthlyNetSalary = x54, MortgageInterestRate = x55
+  )
+```
+
+```{r}
+world_happiness <- read.csv("World Happiness Report 2022.csv")
+```
+
+```{r}
+world_happiness$Country <- gsub("\\*", "", world_happiness$Country)
+
+country_dictionary <- c(
+  "Hong Kong S.A.R. of China"  = "Hong Kong",
+  "Taiwan Province of China" = "Taiwan",
+  "Kosovo" = "Kosovo (Disputed Territory)"
+)
+world_happiness$Country <- ifelse(world_happiness$Country %in% names(country_dictionary),
+                                  country_dictionary[world_happiness$Country],
+                                  world_happiness$Country)
+
+```
+
+```{r}
+combined_data <- left_join(df_cost_renamed, world_happiness, by = c('country' = 'Country'))
+```
+
+
+```{r}
+combined_data <- combined_data %>%
+  mutate(Cost_of_Living_Index = ((InexpensiveMeal + MealForTwo + McMeal + DomesticBeerRestaurant + ImportedBeerRestaurant + Cappuccino + CokePepsi +
+                                  WaterRestaurant)*0.15 +
+                                  (Milk + WhiteBread + Rice + Eggs + LocalCheese + ChickenFillets + BeefRound + Apples + Banana + Oranges + Tomato + Potato +
+                                  Onion + Lettuce)*0.25 + 
+                                  (WaterMarket + BottleOfWine + DomesticBeerMarket + ImportedBeerMarket + Cigarettes)*0.05  + 
+                                  (OneWayTicket + MonthlyPass + TaxiStart + Taxi1km + Taxi1hrWaiting + Gasoline + VolkswagenGolf + ToyotaCorolla) *0.1 +
+                                  (BasicUtilities + MobileTariff + Internet + FitnessClub + TennisCourtRent + Cinema + Preschool + InternationalSchool) * 0.1 + 
+                                  (Jeans + SummerDress + NikeRunningShoes + MenLeatherShoes) * 0.05 + 
+                                  (Apartment1bedCityCenter + Apartment1bedOutsideCenter + Apartment3bedsCityCenter + Apartment3bedsOutsideCenter +
+                                  PricePerSquareMeterCity + PricePerSquareMeterOutside) *0.3 ))
+
+head(combined_data %>% select (city, country, Cost_of_Living_Index))
+```
+
+```{r}
+write.csv(combined_data, "cost_of_living_and_happiness.csv")
+```
+
+
+
