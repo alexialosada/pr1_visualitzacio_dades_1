@@ -12,6 +12,9 @@ if (!require("tidyverse")) install.packages("tidyverse")
 library(tidyverse)
 ```
 
+GLOBAL COST OF LIVING
+
+
 ```{r}
 cost_of_living_v1 <- read.csv("cost-of-living.csv")[, -1]
 cost_of_living_v2 <- read.csv("cost-of-living_v2.csv")
@@ -22,6 +25,7 @@ cost_of_living_v2 <- read.csv("cost-of-living_v2.csv")
 df_cost <- rbind(cost_of_living_v1, cost_of_living_v2)
 ```
 
+Renom de columnes
 
 ```{r}
 df_cost_renamed <- df_cost %>%
@@ -37,9 +41,12 @@ df_cost_renamed <- df_cost %>%
   )
 ```
 
+WORLD HAPPINESS REPORT
+
 ```{r}
 world_happiness <- read.csv("World Happiness Report 2022.csv")
 ```
+Normalització noms de països
 
 ```{r}
 world_happiness$Country <- gsub("\\*", "", world_happiness$Country)
@@ -55,10 +62,13 @@ world_happiness$Country <- ifelse(world_happiness$Country %in% names(country_dic
 
 ```
 
+Combinar datasets
+
 ```{r}
 combined_data <- left_join(df_cost_renamed, world_happiness, by = c('country' = 'Country'))
 ```
 
+Càlcul index del cost de vida
 
 ```{r}
 combined_data <- combined_data %>%
